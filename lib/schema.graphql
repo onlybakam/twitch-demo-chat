@@ -1,0 +1,39 @@
+type Chat {
+  id: ID!
+  name: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  messages: MessageConnection
+}
+
+type Message {
+  id: ID!
+  chatId: ID!
+  text: String!
+  createdAt: AWSDateTime
+}
+
+type MessageConnection {
+  items: [Message!]
+  nextToken: String
+}
+
+type ChatConnection {
+  items: [Chat]
+  nextToken: String
+}
+
+type Mutation {
+  createChat(name: String!): Chat
+  createMessage(chatId: ID!, text: String!): Message
+}
+
+type Query {
+  getChat(id: ID!, limit: Int): Chat
+  getMoreMessages(chatId: ID!, limit: Int, nextToken: String): MessageConnection
+  getMoreMessagesWithDLR(chatId: ID!, limit: Int, nextToken: String): MessageConnection
+}
+
+type Subscription {
+  onCreateMessage(chatId: ID!): Message @aws_subscribe(mutations: ["createMessage"])
+}

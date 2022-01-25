@@ -1,0 +1,11 @@
+## Pass back the result from DynamoDB. **
+#if(!$ctx.result.items.isEmpty())
+  #set( $chat = $ctx.result.items.get(0) )
+  $util.qr($chat.put("messages", {
+    "items": $util.list.copyAndRemoveAll($ctx.result.items, [$chat]),
+    "nextToken": $ctx.result.nextToken
+  }))
+  $util.toJson($chat)
+#else
+  $util.toJson(null)
+#end

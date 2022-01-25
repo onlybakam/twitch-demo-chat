@@ -1,0 +1,24 @@
+#set($id = $util.autoId())
+#set($date = $util.time.nowISO8601())
+{
+  "version": "2017-02-28",
+  "operation": "PutItem",
+  "key": {
+    "PK": $util.dynamodb.toDynamoDBJson("chat#${id}"),
+    "SK": $util.dynamodb.toDynamoDBJson("chat#${id}"),
+  },
+  "attributeValues": $util.dynamodb.toMapValuesJson({
+    "id": $id,
+    "__typeName": "Chat",
+    "name": $ctx.args.name,
+    "createdAt": $date,
+    "updatedAt": $date
+  }),
+  "condition": {
+    "expression": "attribute_not_exists(#PK) and attribute_not_exists(#SK)",
+    "expressionNames": {
+      "#PK": "PK",
+      "#SK": "SK",
+    },
+  },
+}
