@@ -30,6 +30,7 @@ type Mutation {
 
 type Query {
   getChat(id: ID!, limit: Int): Chat
+  listChats: [Chat]
   getMoreMessages(chatId: ID!, limit: Int, nextToken: String): MessageConnection
   getMoreMessagesWithDLR(chatId: ID!, limit: Int, nextToken: String): MessageConnection
 }

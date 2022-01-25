@@ -1,0 +1,14 @@
+{
+    "version": "2017-02-28",
+    "index": "byTypeName",
+    "operation": "Query",
+    "query" : {
+        "expression" : "#PK = :PK",
+        "expressionNames" : {
+            "#PK" : "__typeName",
+        },
+        "expressionValues" : {
+            ":PK" : $util.dynamodb.toDynamoDBJson("Chat")
+        }
+    }
+}

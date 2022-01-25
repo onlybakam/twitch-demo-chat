@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core'
 import * as appsync from '@aws-cdk/aws-appsync'
 import * as dynamodb from '@aws-cdk/aws-dynamodb'
 import * as lambda from '@aws-cdk/aws-lambda-nodejs'
+import { CfnOutput } from '@aws-cdk/core'
 
 export class ItsAChatStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -24,6 +25,11 @@ export class ItsAChatStack extends cdk.Stack {
 
     const table = new dynamodb.Table(this, 'ItsAChatTable', {
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
+    })
+    table.addGlobalSecondaryIndex({
+      indexName: 'byTypeName',
+      partitionKey: { name: '__typeName', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
     })
 
@@ -57,6 +63,13 @@ export class ItsAChatStack extends cdk.Stack {
       responseMappingTemplate: appsync.MappingTemplate.fromFile('./lib/resolvers/getMoreMessages.res.vtl'),
     })
 
+    chatDS.createResolver({
+      typeName: 'Query',
+      fieldName: 'listChats',
+      requestMappingTemplate: appsync.MappingTemplate.fromFile('./lib/resolvers/listChats.req.vtl'),
+      responseMappingTemplate: appsync.MappingTemplate.fromFile('./lib/resolvers/listChats.res.vtl'),
+    })
+
     const dlr = new lambda.NodejsFunction(this, 'dlr-getChat', {
       environment: { TABLE_NAME: table.tableName },
     })
@@ -66,5 +79,9 @@ export class ItsAChatStack extends cdk.Stack {
       typeName: 'Query',
       fieldName: 'getMoreMessagesWithDLR',
     })
+
+    new CfnOutput(this, 'API_ID', { value: api.apiId })
+    new CfnOutput(this, 'API_URL', { value: api.graphqlUrl })
+    new CfnOutput(this, 'API_KEY', { value: api.apiKey! })
   }
 }
